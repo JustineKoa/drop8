@@ -45,15 +45,16 @@ public class GameBoard {
     // start game, asking for user input, ends when game over
     public void startGame(){
         int move_count = 0;
+        this.print_board();
         while(!this.gameover){
             move_count++;
             Token current_token = new Token();
             System.out.println("Current Token: " + current_token.getValue());
             System.out.println("Current Move Count: " + move_count);
-            this.print_board(); // print before move
             System.out.println("Enter a column: ");
             int col = reader.nextInt();
             int row = find_bottom_of_col(col);
+
             if(row == -1){
                 this.gameover = true;
                 break;
@@ -73,6 +74,7 @@ public class GameBoard {
                 this.print_board(); // show board with level up before changes
                 this.check_for_any_matches(); // check for matches, printing when changes occur
             }
+
         }
 
         System.out.println("Game Over!");
@@ -90,12 +92,17 @@ public class GameBoard {
             }
         }
 
+        this.check_for_gameover();
+
+        this.board = new_board;
+    }
+
+    private void check_for_gameover(){
         for(int c=0; c<=7; c++){
             if(this.board[0][c] != null){
                 this.gameover = true;
             }
         }
-        this.board = new_board;
     }
 
     // puts token on board

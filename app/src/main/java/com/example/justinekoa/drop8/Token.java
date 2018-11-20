@@ -10,7 +10,7 @@ public class Token {
     private boolean is_broken;
     private int number;
 
-    // contructor that sets the toket to a new number or to be locked
+    // constructor that sets the token to a new number or to be locked
     Token(){
         Random r = new Random();
         int number = r.nextInt(15) + 1; // random number between 1 and 15 inclusive
