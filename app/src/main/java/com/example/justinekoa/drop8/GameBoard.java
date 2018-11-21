@@ -12,12 +12,22 @@ public class GameBoard {
     private int num_rows = 8;
     private int num_cols = 8;
     private Token[][] board = new Token[this.num_rows][this.num_cols];
-    Scanner reader = new Scanner(System.in);
+    private Scanner reader = new Scanner(System.in);
     private boolean gameover;
 
     // start gameboard
     GameBoard(){
         clear_board(); // begin with a clear board
+    }
+
+    // to get token at current square in board
+    public String get_token_at(int row, int col){
+        if(this.board[row][col] == null){
+            return "";
+        }
+        else{
+            return this.board[row][col].getValue();
+        }
     }
 
     // set all spots in board to be null
