@@ -9,12 +9,13 @@ public class Token {
     private boolean is_number;
     private boolean is_broken;
     private int number;
+    private int highest_number_possible = 8; // change this if wanting to change from drop8 to different number
 
     // constructor that sets the token to a new number or to be locked
     Token(){
         Random r = new Random();
-        int number = r.nextInt(15) + 1; // random number between 1 and 15 inclusive
-        if(number > 8){
+        int number = r.nextInt(12) + 1; // random number between 1 and 12 inclusive
+        if(number > this.highest_number_possible){ // if 9-12 then make it a frozen token
             this.is_number = false;
             this.is_broken = false;
         }
@@ -74,7 +75,7 @@ public class Token {
     // sets number to random number between 1-8, used only when a locked token gets broken
     private void set_number(){
         Random r = new Random();
-        int number = r.nextInt(8) + 1;
+        int number = r.nextInt(this.highest_number_possible) + 1;
         this.number = number;
     }
 

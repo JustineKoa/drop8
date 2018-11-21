@@ -9,19 +9,21 @@ import java.util.jar.Pack200;
  */
 
 public class GameBoard {
-    private Token[][] board = new Token[8][8];
+    private int num_rows = 8;
+    private int num_cols = 8;
+    private Token[][] board = new Token[this.num_rows][this.num_cols];
     Scanner reader = new Scanner(System.in);
     private boolean gameover;
 
     // start gameboard
     GameBoard(){
-        clear_board();
+        clear_board(); // begin with a clear board
     }
 
-    // set gameboard to be 8x8 of null
+    // set all spots in board to be null
     private void clear_board(){
-        for(int row=0; row<8; row++){
-            for(int col=0; col<8; col++){
+        for(int row = 0; row < this.num_rows; row++){
+            for(int col = 0; col < this.num_cols; col++){
                 this.board[row][col] = null;
             }
         }
@@ -29,8 +31,8 @@ public class GameBoard {
 
     // print board to console
     private void print_board(){
-        for(int row=0; row<8; row++){
-            for(int col=0; col<8; col++){
+        for(int row=0; row<this.num_rows; row++){
+            for(int col=0; col<this.num_cols; col++){
                 if(this.board[row][col] != null){
                     System.out.print("[" + this.board[row][col].getValue() + "]");
                 }
@@ -43,8 +45,10 @@ public class GameBoard {
     }
 
     // start game, asking for user input, ends when game over
+    // little messy right now but really just for testing so far
     public void startGame(){
         int move_count = 0;
+        int level=1;
         this.print_board();
         while(!this.gameover){
             move_count++;
@@ -71,34 +75,36 @@ public class GameBoard {
                 if(this.gameover){
                     break;
                 }
+                level += 1;
                 this.print_board(); // show board with level up before changes
                 this.check_for_any_matches(); // check for matches, printing when changes occur
             }
 
         }
 
-        System.out.println("Game Over!");
+        System.out.println("Game Over! Made it to level: " + level);
     }
 
     // level up by moving everything up one row and adding a row of locked tokens on the bottom, can cause game over
     private void level_up(){
-        Token[][] new_board = new Token[8][8];
-        for(int c=0; c<=7; c++){
+        Token[][] new_board = new Token[this.num_rows][this.num_cols];
+        for(int c=0; c< this.num_cols; c++){
             new_board[7][c] = new Token(false);
         }
-        for(int r=6; r>=0; r--){
-            for(int c=0; c<=7; c++){
+        for(int r = this.num_rows-2; r>=0; r--){
+            for(int c=0; c< this.num_cols; c++){
                 new_board[r][c] = this.board[r+1][c];
             }
         }
 
-        this.check_for_gameover();
+        this.check_for_game_over();
 
         this.board = new_board;
     }
 
-    private void check_for_gameover(){
-        for(int c=0; c<=7; c++){
+    // if top of the board is not completely null, then must be a game over because level up will push numbers out
+    private void check_for_game_over(){
+        for(int c = 0; c< this.num_cols; c++){
             if(this.board[0][c] != null){
                 this.gameover = true;
             }
@@ -114,8 +120,8 @@ public class GameBoard {
     private void check_for_any_matches(){
         List<int[]> all_matches = new ArrayList<int[]>();
 
-        for(int r=0; r<8; r++){
-            for(int c=0; c<8; c++){
+        for(int r=0; r < this.num_rows; r++){
+            for(int c=0; c < this.num_cols; c++){
                 List<int[]> match_found = this.check_pops(r,c);
                 for(int[] intArr: match_found){
                     all_matches.add(intArr);
@@ -127,7 +133,7 @@ public class GameBoard {
             this.board[intArr[0]][intArr[1]] = null;
         }
         for(int[] intArr: all_matches){
-            this.shift_down_from(intArr[0], intArr[1]);
+            this.shift_down_from(intArr[1]);
         }
 
         if(all_matches.size() > 0){
@@ -141,13 +147,13 @@ public class GameBoard {
     private List<int[]>  check_pops(int row, int col){
         // count number of tokens vertically
         int vertical_token_count = 0;
-        for(int r=7; r>=0 && this.board[r][col] != null; r--){
+        for(int r = this.num_rows-1; r>=0 && this.board[r][col] != null; r--){
             vertical_token_count++;
         }
 
         // count number of tokens horizontally touching
         int horizontal_token_count = 0;
-        for(int c=col; c<8 && this.board[row][c] != null; c++){
+        for(int c=col; c< this.num_cols && this.board[row][c] != null; c++){
             horizontal_token_count++;
         }
 
@@ -163,7 +169,7 @@ public class GameBoard {
         List<int[]> matches = new ArrayList<int[]>();
 
 
-        for(int r=7; r>=0 && this.board[r][col] != null; r--){
+        for(int r = this.num_rows-1; r >= 0 && this.board[r][col] != null; r--){
             if(this.board[r][col].is_number() &&  this.board[r][col].getNumber() == v){
                 this.board[r][col].setNumber(0);
                 this.edit_surroundings(r,col); // edit ones around it
@@ -172,7 +178,7 @@ public class GameBoard {
             }
         }
 
-        for(int c=col; c<8 && this.board[row][c] != null; c++){
+        for(int c = col; c < this.num_cols && this.board[row][c] != null; c++){
             if(this.board[row][c].is_number() &&  this.board[row][c].getNumber() == h){
                 this.board[row][c].setNumber(0);
                 this.edit_surroundings(row,c); // edit ones around it
@@ -181,7 +187,7 @@ public class GameBoard {
             }
         }
 
-        for(int c=col-1; c>=0 && this.board[row][c] != null; c--){
+        for(int c = col-1; c >= 0 && this.board[row][c] != null; c--){
             if(this.board[row][c].is_number() &&  this.board[row][c].getNumber() == h){
                 this.board[row][c].setNumber(0);
                 this.edit_surroundings(row,c); // edit ones around it
@@ -197,11 +203,11 @@ public class GameBoard {
     }
 
     // shifts tokens down as long as there are still tokens above it to be moved
-    private void shift_down_from(int row, int col){
-        for(int i = 7; i >= 0 && !this.check_if_empty_up(i,col); i--){
-            if(this.board[i][col] == null){
-                this.board[i][col] = this.board[i-1][col];
-                this.board[i-1][col] = null;
+    private void shift_down_from(int col){
+        for(int r = this.num_rows-1; r >= 0 && !this.check_if_empty_up(r,col); r--){
+            if(this.board[r][col] == null){
+                this.board[r][col] = this.board[r-1][col];
+                this.board[r-1][col] = null;
             }
         }
     }
@@ -218,7 +224,7 @@ public class GameBoard {
 
     // helper method returns if row and col are in board
     private boolean in_board(int row, int col){
-        return 0 <= row && row <= 7 && 0 <= col && col <= 7;
+        return 0 <= row && row < this.num_rows && 0 <= col && col < this.num_cols;
     }
 
     // helper method edits the surrounding tokens for a token that is going to pop (breaks them if they are frozen)
@@ -246,7 +252,7 @@ public class GameBoard {
 
     // helper method returns most bottom empty row square of that column
     private int find_bottom_of_col(int col){
-        for(int row=7; row>=0; row--){
+        for(int row = this.num_rows-1; row >= 0; row--){
             if(this.board[row][col] == null){
                 return row;
             }
@@ -254,6 +260,7 @@ public class GameBoard {
         return -1;
     }
 
+    // for testing in the console purposes
     public static void main(String[] args) {
         GameBoard g = new GameBoard();
         g.startGame();
